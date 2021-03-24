@@ -110,6 +110,9 @@ For a feature using a new keyword `foo`, follow these steps:
 6. Add an edition post-migration fix to replace all uses of `k#foo` with `foo`.
 7. Be sure to reference the test for those steps in the stabilization report for FCP.
 
+## Editions before Rust 2021
+
+For older editions, the `r#$foo` syntax cannot be used because macro-rules currently treats them as two distinct tokens. For those editions, we will use `kr#` for the same purpose. This syntax is accepted in all editions for completeness, but it is not expected to be used.
 
 # Reference-level explanation
 [reference-level-explanation]: #reference-level-explanation
@@ -124,9 +127,12 @@ This is the technical portion of the RFC. Explain the design in sufficient detai
 The section should return to the examples given in the previous section, and explain more fully how the detailed proposal makes those examples work.
 -->
 
-A new tokenizer rule is introduced:
+Two new tokenizer rules are introduced:
 
-> RAW_KEYWORD : `k#` IDENTIFIER_OR_KEYWORD
+```
+RAW_KEYWORD : `k#` IDENTIFIER_OR_KEYWORD
+            | `r#$` IDENTIFIER_OR_KEYWORD
+```
 
 Unlike RAW_IDENTIFIER, this doesn't need the `crate`/`self`/`super`/`Self` exclusions, as those are all keywords anyway.
 
@@ -139,6 +145,13 @@ For contextual keywords, that mean that a raw keyword is only accepted where it'
 
 The pre-migration fix will look for the tokens "`k` `#` ident" in a macro call without whitespace between either pair, and will add a single space on either side of the `#`.
 
+## Lint for removing the `k#` and `r#$` prefixes
+
+There will be a warn-by-default lint that detects when `k#foo` or `r#$foo` are used in some edition where `foo` is a recognized keyword. This lint will have a machine-applicable suggestion to replace `k#foo` (or `r#$foo`) with `foo`.
+
+## Macros
+
+For macros, the `k#foo` syntax will be determined to be a keyword or not based on the Edition from its span.
 
 # Drawbacks
 [drawbacks]: #drawbacks
@@ -151,8 +164,6 @@ Why should we *not* do this?
 - This makes macro token rules even more complicated than they already were.
 - This only works for keywords that will match the existing IDENTIFIER_OR_KEYWORD category.
 - This is more complicated than just telling people to wait for the next edition.
-- This cannot be done in the 2015 and 2018 editions, with the proposed regex.
-
 
 # Rationale and alternatives
 [rationale-and-alternatives]: #rationale-and-alternatives
@@ -176,10 +187,9 @@ There are a few fundamental differences between raw keywords and raw identifiers
 
 In concert, these push for a particular tradeoff:
 
-> **It's better for raw keywords to be nice on 2021 than for them to be supported on 2018**
-
-There *is* lexical space available even in 2015 that could be used: `r#$keyword` was brought up, for example.  But the extra noise of that isn't worth it.  (And while it's easy enough to type on a standard US keyboard, that's no longer true on others, such as Linux's UK international keyboard layout.)
-
+> **It's important for raw keywords to be nice on 2021**
+ 
+We have chosen to use `k#foo` as the syntax in Rust 2021+ because we do expect that people will be writing code using this syntax in between editions, so it's important that it is tolerably nice. The syntax is also nicely analogous to `r#foo`. This justifies the additional complexity of supporting this syntax and doing a migration for older editions.
 
 # Prior art
 [prior-art]: #prior-art
@@ -224,9 +234,7 @@ Haskell has the [`LANGUAGE` pragma](https://ghc.readthedocs.io/en/8.0.2/glasgow_
 - What related issues do you consider out of scope for this RFC that could be addressed in the future independently of the solution that comes out of this RFC?
 -->
 
-- What I'd put is probably ignorant of compiler implementation realities.
-- I've probably missed something that needs specifying around macros.
-
+None at this time.
 
 # Future possibilities
 [future-possibilities]: #future-possibilities
@@ -251,5 +259,4 @@ in the section on motivation or rationale in this or subsequent RFCs.
 The section merely provides additional information.
 -->
 
-- Since an edition fix that can do it is required anyway, it may be good to have a lint on by default that suggests removing superfluous `k#`s.
-
+None at this time.
