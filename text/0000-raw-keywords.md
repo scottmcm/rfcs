@@ -112,7 +112,7 @@ For a feature using a new keyword `foo`, follow these steps:
 
 ## Editions before Rust 2021
 
-For older editions, the `r#$foo` syntax cannot be used because macro-rules currently treats them as two distinct tokens. For those editions, we will use `kr#` for the same purpose. This syntax is accepted in all editions for completeness, but it is not expected to be used.
+For older editions, the `k#foo` syntax cannot be used because macro-rules currently treats them as two distinct tokens. For those editions, we will use `r#$foo` for the same purpose. This syntax is accepted in all editions for completeness, but it is not expected to be widely used.
 
 # Reference-level explanation
 [reference-level-explanation]: #reference-level-explanation
