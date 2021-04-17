@@ -3,6 +3,10 @@
 - RFC PR: [rust-lang/rfcs#3058](https://github.com/rust-lang/rfcs/pull/3058)
 - Rust Issue: [rust-lang/rust#84277](https://github.com/rust-lang/rust/issues/84277)
 
+> 🎉 This was merged! 🎉
+>
+> Please see the offical version as [RFC 3058](https://github.com/rust-lang/rfcs/blob/master/text/3058-try-trait-v2.md).
+
 # Summary
 [summary]: #summary
 
